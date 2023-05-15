@@ -4,8 +4,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from time import sleep
-from usernames import USERNAME1,PASSWORD,TESTPASS
+from usernames import USERNAME,PASSWORD,PASSWORD2
 from settings import CHROME_DRIVER_PATH,DESTINATION_PATH
+from report_csv import ReportToCsv
 
 
 
@@ -13,12 +14,19 @@ from settings import CHROME_DRIVER_PATH,DESTINATION_PATH
 class AutomatedFormFill:
 
   def __init__(self,destination_path):
+    options = webdriver.ChromeOptions()
+    # options.binary_location = "./Applications/Google Chrome.app/Contents/MacOS/Google Chrome/bin"
+    self.driver = webdriver.Chrome(CHROME_DRIVER_PATH)
     self.destination_path = destination_path
 
     self.status = ""
 
-    self.driver = webdriver.Chrome(CHROME_DRIVER_PATH)
 
+
+
+
+
+    
 
   def completed(self,status):
     pass
@@ -28,19 +36,21 @@ class AutomatedFormFill:
     #username is wrong or not existing
     try:
       username_error = self.driver.find_element("id","usernameError")
-      print("there is username error")
+      report = ReportToCsv(USERNAME,"Null","username is incorect")
+      report.reporting()
     
     except:
       pass
 
 
   def check_password(self):
-      
-      try:
-        password_error = self.driver.find_element("id","passwordError")
-        print("there is password error")
-      except:
-        pass
+      password_error = self.driver.find_element("id","passwordError")
+      if password_error:
+        report = ReportToCsv(USERNAME,"Null","password is incorect",True)
+        report.reporting()
+      else:
+        return 0
+        
 
 
 
@@ -81,7 +91,7 @@ class AutomatedFormFill:
       #checking if there is security windows
       find = self.driver.find_element("id","idSubmit_ProofUp_Redirect")
       with open("report.txt","w") as report:
-        report.write(f"{USERNAME1} is having error:security 2FA")
+        report.write(f"{USERNAME} is having error:security 2FA")
       
       #if not security window so click on No and continue 
     except:
@@ -111,7 +121,7 @@ class AutomatedFormFill:
 
 
     #method that checking the credentials 
-    self.credentials_check(USERNAME1,TESTPASS)
+    self.credentials_check(USERNAME,PASSWORD)
 
     self.security_defaults_windows()
 
