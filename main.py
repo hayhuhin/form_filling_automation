@@ -10,7 +10,6 @@ from settings import CHROME_DRIVER_PATH,DESTINATION_PATH
 
 
 
-
 class AutomatedFormFill:
 
   def __init__(self,destination_path):
