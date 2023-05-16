@@ -4,9 +4,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from time import sleep
-from usernames import USERNAME,PASSWORD,PASSWORD2
+from usernames import USERNAME,PASSWORD
 from settings import CHROME_DRIVER_PATH,DESTINATION_PATH
 from report_csv import ReportToCsv
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.support import expected_conditions as ec
+
 
 
 
@@ -14,8 +17,6 @@ from report_csv import ReportToCsv
 class AutomatedFormFill:
 
   def __init__(self,destination_path):
-    options = webdriver.ChromeOptions()
-    # options.binary_location = "./Applications/Google Chrome.app/Contents/MacOS/Google Chrome/bin"
     self.driver = webdriver.Chrome(CHROME_DRIVER_PATH)
     self.destination_path = destination_path
 
@@ -23,42 +24,26 @@ class AutomatedFormFill:
 
 
 
-
-
-
-    
-
   def completed(self,status):
     pass
 
 
-  def check_username(self):
-    #username is wrong or not existing
-    try:
-      username_error = self.driver.find_element("id","usernameError")
-      report = ReportToCsv(USERNAME,"Null","username is incorect")
-      report.reporting()
-    
-    except:
-      pass
+  def credential_validation(self):
+    login_error_list = [("id","usernameError"),("id","passwordError")]
 
-
-  def check_password(self):
-      password_error = self.driver.find_element("id","passwordError")
-      if password_error:
-        report = ReportToCsv(USERNAME,"Null","password is incorect",True)
-        report.reporting()
-      else:
-        return 0
+    for by,value in login_error_list:
+      try:
+        error = self.driver.find_element(by,value).is_displayed()
+        if error:
+          report = ReportToCsv(USERNAME,"Null",value,True)
+          report.reporting()
+        break
         
+      except NoSuchElementException:
+        pass
 
 
-
-  def wait_5_sec(self):
-    sleep(5)
-
-
-  def credentials_check(self,username,password):
+  def credentials_fill(self,username,password):
 
     #first step to check the username
     typing = ac(self.driver)
@@ -70,39 +55,84 @@ class AutomatedFormFill:
     find.click()
 
     #check if this username is exists
-    self.check_username()
-    self.wait_5_sec()
+    self.credential_validation()
+    sleep(5)
 
-    #second step is to check if the password is right
+    #sending keys to the webpage with the password
     typing_pass = ac(self.driver)
     typing_pass.send_keys(password)
     typing_pass.perform()
 
+    #click next after filling the password
     find = self.driver.find_element("id","idSIButton9")  
     find.click()
 
-    self.check_password()
-
+    # checking if password exists
+    self.credential_validation()
+    sleep(5)
 
   def security_defaults_windows(self):
-    self.wait_5_sec()
+    sleep(5)
     #method to check if secority defaults are enabled window appear
-    try:
-      #checking if there is security windows
-      find = self.driver.find_element("id","idSubmit_ProofUp_Redirect")
-      with open("report.txt","w") as report:
-        report.write(f"{USERNAME} is having error:security 2FA")
+    windows = [("id","idSubmit_ProofUp_Redirect"),("id","idBtn_Back")]
+    for by,value in windows:
+      try:
+        #checking if there is security windows
+        find = self.driver.find_element(by,value)
+        if value == "idSubmit_ProofUp_Redirect":
+          find = self.driver.find_element("id","btnAskLater")
+          find.click()
+        elif value == "idBtn_Back":
+          find = self.driver.find_element("id","idBtn_Back")
+          find.click()
+        else:
+          report = ReportToCsv(USERNAME,"none",value,True)
+        break
+
+      except NoSuchElementException:
+        pass
       
       #if not security window so click on No and continue 
-    except:
-      find = self.driver.find_element("id","idBtn_Back")
-      find.click()
+    # except:
+    #   find = self.driver.find_element("id","idBtn_Back")
+    #   if find.is_displayed():
+    #     find.click()
+
+
+
 
 
   def check_auth_partnership(self):
-    sleep(15)
+    sleep(35)
+    # wait = WebDriverWait(self.driver,35)
+    # element = wait.until(ec.element_to_be_clickable((By.CLASS_NAME, 'ms-Checkbox-checkmark')))
+    # element.click()
+
+    # check_boxes = [(By.CLASS_NAME,"ms-Checkbox-checkmark"),(By.CLASS_NAME,"ms-Checkbox-checkmark")]
+    # try:
+    #   #TODO dont forget that you can access all class names by BY class method
+    #   find = self.driver.find_elements(By.CLASS_NAME,"ms-Checkbox-checkmark")
+    #   for i in find:
+    #     print(i)
+    #   # find.click()
+    #   # print(find.text)
+    #   print("its found the class")
+
+    # except:
+    #   print("its didnt find the element")
+    #   pass
+    # try:
+    #   find = self.driver.find_element(By.CLASS_NAME,"ms-Button")
+    #   find.click()
+    # except:
+    #   pass
+
+
+                  #IMPORTANT here its twice because the checkbox and the click must be completed one after another
+    
     try:
-      #TODO dont forget that you can access all class names by BY class method
+      #IMPORTANT          #TODO the two checkboxes having the same attributes so i have to find a way to check both of them but not
+      #                         in the same time #REMEBER the driver iterates over the website every 500 ml seconds
       find = self.driver.find_element(By.CLASS_NAME,"ms-Checkbox-checkmark")
       find.click()
       print(find.text)
@@ -111,60 +141,48 @@ class AutomatedFormFill:
     except:
       print("its didnt find the element")
       pass
+    sleep(5)
+    try:
+      find = self.driver.find_element(By.CLASS_NAME,"ms-Button--primary")
+      find.click()
+    except:
+      pass
+    sleep(5)
+        
+    try:
+        find = self.driver.find_element(By.CLASS_NAME,"ms-Checkbox-checkmark")
+        find.click()
+        print(find.text)
+        print("second_checkbox")
+
+    except:
+          print("its didnt find the element")
+          pass
+
+
 
   def activate(self):
 
     self.driver.get(self.destination_path)
     
     #waiting 5 second before continue
-    sleep(5)
+    # sleep(5)
 
 
     #method that checking the credentials 
-    self.credentials_check(USERNAME,PASSWORD)
+    self.credentials_fill(USERNAME,PASSWORD)
 
     self.security_defaults_windows()
 
+    try:
+      find = self.driver.find_element("id","idBtn_Back")
+      find.click()
+    except:
+      pass
+
+
+    #here its inside the RRR and starting to fill the form 
     self.check_auth_partnership()
-    
-    # try:
-    #   find = self.driver.find_element("id","idBtn_Back")
-    #   find.click()
-    # except:
-    #   pass
-    # try:
-    #   find_window = self.driver.find_element("h2","Microsoft Authenticator")
-    #   print("window exists")
-    # except:
-    #   print("test")
-    # click_next = self.driver.find_element("value","Next").click()
-    # click_next.send_keys(Keys.RETURN)
-
-    # find = self.driver.find_element("id","idSIButton9")  
-    # find.click()
-
-    
-    
-    
-
-    # search_bar = driver.find_element("").send_keys("012ps@investigatio.onmicrosoft.com")
-    # # # find = driver.find_element()
-    # # # find.clear()
-    # # # find = driver.send_keys("012ps@investigatio.onmicrosoft.com")
-    # # # find.send_keys(Keys.RETURN)
-    # search_bar.clear()
-    # search_bar.send_keys("012ps@investigatio.onmicrosoft.com")
-    # search_bar.send_keys(Keys.RETURN)
-    
-    #example of waiting for a certain element to show up and then click
-    # try:
-    # element = WebDriverWait(driver, 5).until(
-    # EC.presence_of_element_located((By.ID, "id-of-new-element"))
-    # )
-    # finally:
-    # driver.quit()
-
-
 
     #method that will return which username us succeded in the form filling and which is not succeded
     self.completed(self.status)
