@@ -44,6 +44,7 @@ class AutomatedFormFill:
 
 
   def credentials_fill(self,username,password):
+    sleep(5)  
 
     #first step to check the username
     typing = ac(self.driver)
@@ -70,6 +71,7 @@ class AutomatedFormFill:
     # checking if password exists
     self.credential_validation()
     sleep(5)
+
 
   def security_defaults_windows(self):
     sleep(5)
@@ -103,29 +105,8 @@ class AutomatedFormFill:
 
 
   def check_auth_partnership(self):
-    sleep(35)
-    # wait = WebDriverWait(self.driver,35)
-    # element = wait.until(ec.element_to_be_clickable((By.CLASS_NAME, 'ms-Checkbox-checkmark')))
-    # element.click()
-
-    # check_boxes = [(By.CLASS_NAME,"ms-Checkbox-checkmark"),(By.CLASS_NAME,"ms-Checkbox-checkmark")]
-    # try:
-    #   #TODO dont forget that you can access all class names by BY class method
-    #   find = self.driver.find_elements(By.CLASS_NAME,"ms-Checkbox-checkmark")
-    #   for i in find:
-    #     print(i)
-    #   # find.click()
-    #   # print(find.text)
-    #   print("its found the class")
-
-    # except:
-    #   print("its didnt find the element")
-    #   pass
-    # try:
-    #   find = self.driver.find_element(By.CLASS_NAME,"ms-Button")
-    #   find.click()
-    # except:
-    #   pass
+    sleep(15)
+    all_checkboxes = self.driver.find_elements(By.CLASS_NAME,"ms-Checkbox-checkmark")
 
 
                   #IMPORTANT here its twice because the checkbox and the click must be completed one after another
@@ -134,14 +115,20 @@ class AutomatedFormFill:
       #IMPORTANT          #TODO the two checkboxes having the same attributes so i have to find a way to check both of them but not
       #                         in the same time #REMEBER the driver iterates over the website every 500 ml seconds
       find = self.driver.find_element(By.CLASS_NAME,"ms-Checkbox-checkmark")
+      print(find)
       find.click()
+      print(find.is_selected())
       print(find.text)
       print("its found the class")
 
     except:
       print("its didnt find the element")
       pass
+
+
     sleep(5)
+
+
     try:
       find = self.driver.find_element(By.CLASS_NAME,"ms-Button--primary")
       find.click()
@@ -149,16 +136,25 @@ class AutomatedFormFill:
       pass
     sleep(5)
         
-    try:
-        find = self.driver.find_element(By.CLASS_NAME,"ms-Checkbox-checkmark")
-        find.click()
-        print(find.text)
-        print("second_checkbox")
+    for i in all_checkboxes[1:]:
+        try:
+            all_checkboxes[1].click()
+            
 
-    except:
-          print("its didnt find the element")
-          pass
+        except:
+              print("its didnt find the element")
+              pass
+        
+    find = self.driver.find_element(By.CLASS_NAME,"ms-Button--primary")
+    find.click()
+    sleep(4)
+    find = self.driver.find_element(By.CLASS_NAME,"ms-Button--primary")
+    find.click()
 
+    sleep(3)
+
+    find = self.driver.find_element(By.CLASS_NAME,"ms-Dialog-action")
+    find.click()
 
 
   def activate(self):
