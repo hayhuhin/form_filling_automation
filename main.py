@@ -5,7 +5,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from time import sleep
 from usernames import password_list
-from settings import CHROME_DRIVER_PATH,DESTINATION_PATH
+from settings import CHROME_DRIVER_PATH,DESTINATION_URL
 from report_csv import ReportToCsv
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support import expected_conditions as ec
@@ -23,34 +23,34 @@ class AutomatedFormFill:
 
     self.status = {"1":"Added","0":"Not Added"}
 
+    self.stage = "first"
 
-  def password(self):
-    for pas in password_list:
-      return pas
-
-
-  def completed(self,status):#return which user is added succssesfuly and which doesnt
-    return status
 
 
   def credential_validation(self):#method to check username and password validation
     login_error_list = [("id","usernameError"),("id","passwordError")]
 
     for by,value in login_error_list:
+      sleep(5)
       try:
+        sleep(5)
         error = self.driver.find_element(by,value).is_displayed()
         if error:
           report = ReportToCsv(self.username,self.status["0"],value,True)
           report.reporting()
+          return False
+        return False
         break
-        
+      
       except NoSuchElementException:
         return True
+        
 
 
   def credentials_fill(self,username):#filling the credentials and check for errors
 
     """ fillind the credentials and checking for errors"""
+  
     sleep(5)  
 
     #first step to check the username
@@ -59,28 +59,29 @@ class AutomatedFormFill:
     typing.perform()
     
     #clicking the Next button
+    sleep(3)
     find = self.driver.find_element("id","idSIButton9")  
     find.click()
 
     #check if this username is exists
-    self.credential_validation()
+    check = self.credential_validation()
+    print(check)
     sleep(5)
 
     #sending keys to the webpage with the password
     #TODO fix trying all passwords
-    for password in password_list:
-      if not self.credential_validation():
-        typing_pass = ac(self.driver)
-        typing_pass.send_keys(password)
-        typing_pass.perform()
+    
+    typing_pass = ac(self.driver)
+    typing_pass.send_keys(password_list[1])
+    typing_pass.perform()
 
-      #click next after filling the password
-        find = self.driver.find_element("id","idSIButton9")  
-        find.click()
-        sleep(5)
+  #click next after filling the password
+    find = self.driver.find_element("id","idSIButton9")  
+    find.click()
 
-      # checking if password exists
-        self.credential_validation()
+  # checking if password exists
+    check_2 = self.credential_validation()
+    print(check_2)
     sleep(5)
 
 
@@ -90,6 +91,7 @@ class AutomatedFormFill:
   
   
   def security_defaults_windows(self):#fill the security window(reports to csv if cant proceed)
+    self.stage = "third"
     sleep(5)
     windows = [("id","idSubmit_ProofUp_Redirect"),("id","idBtn_Back")]
     for by,value in windows:
@@ -122,7 +124,9 @@ class AutomatedFormFill:
         action:waits 45sec,two/one checkboxes every time pressing confirm button,request btn and a popup with "Yes"
         button.
     """
-    sleep(45)
+   
+    time = sleep(55)
+  
     all_checkboxes = self.driver.find_elements(By.CLASS_NAME,"ms-Checkbox-checkmark")
 
 
@@ -193,6 +197,9 @@ class AutomatedFormFill:
     report.reporting()
 
 
+
+
+
   def activate(self):#method that runs everything togheter(main method)
     """ main method that will run the whole code """
 
@@ -203,11 +210,14 @@ class AutomatedFormFill:
     #method that fill the credentials and checking for errors(wrong username or password and if error exists it will return a report to csv file)
     self.credentials_fill(self.username)
 
+
+
     #checking if there is security window is enabled(checking if can i go to the next step or not)
     self.security_defaults_windows()
 
+    sleep(5)
 
-    #another check for back key
+    #STAY signed in?window
     try:
       find = self.driver.find_element("id","idBtn_Back")
       find.click()
@@ -218,13 +228,6 @@ class AutomatedFormFill:
     #filling the partnership form
     self.check_auth_partnership()
 
-    #method that will return which username us succeded in the form filling and which is not succeded
-    # self.completed(self.status)
-
-
-    #while loop only for testing so the windows is not automaticly close
-    # while True:
-    #   pass
 
 
     
@@ -240,5 +243,5 @@ class AutomatedFormFill:
 
 
 
-form = AutomatedFormFill(DESTINATION_PATH,"012ps@target4biz.onmicrosoft.com")
+form = AutomatedFormFill(DESTINATION_URL,"012ps@targum4biz.onmicrosoft.com")
 form.activate()
