@@ -10,7 +10,7 @@ class ReportToCsv:
         self.fldnames = ["username","status","reason","unique"]
 
     def  reporting(self):
-        with open("report.csv","r+",newline="") as csv_file:
+        with open("form_filling_automation/report.csv","r+",newline="") as csv_file:
             data = csv.reader(csv_file, delimiter=',')
             for user,status,reason,unique in data:
                 if self.username == user:
@@ -19,7 +19,7 @@ class ReportToCsv:
 
 
 
-        with open("report.csv","a",newline="") as report:
+        with open("form_filling_automation/report.csv","a",newline="") as report:
             writing = csv.writer(report)
             
             # writing.writerow(self.fldnames)

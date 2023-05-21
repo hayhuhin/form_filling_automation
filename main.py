@@ -26,6 +26,8 @@ class AutomatedFormFill:
     self.stage = "first"
     self.passwords = [i for i in password_list]
 
+    self.end = ""
+
 
 
   def credential_validation(self):#method to check username and password validation
@@ -83,6 +85,10 @@ class AutomatedFormFill:
         print("there is no pass at all")
         break
     
+    report = ReportToCsv(self.username,self.status["0"],"password is wrong",True)
+    report.reporting()
+   
+    
 
 
 
@@ -108,36 +114,14 @@ class AutomatedFormFill:
     print(check)
     sleep(5)
 
-    #IMPORTANT only for testing
+    #filling all passwords if found continue else:report to csv
     self.password_all()
 
-    #sending keys to the webpage with the password
-    #TODO fix trying all passwords
-    
-    # typing_pass = ac(self.driver)
-    # typing_pass.send_keys(password_list[0])
-    # typing_pass.perform()
-
-  # #click next after filling the password
-  #   find = self.driver.find_element("id","idSIButton9")  
-  #   find.click()
-
-
-    
-
-
-
-  # checking if password exists
-    # check_2 = self.credential_validation()
-    # print(check_2)
     sleep(5)
 
 
-
-
-    #method to check if secority defaults are enabled window appear
   
-  
+  #method to check if secority defaults are enabled window appear  
   def security_defaults_windows(self):#fill the security window(reports to csv if cant proceed)
     self.stage = "third"
     sleep(5)
@@ -243,8 +227,7 @@ class AutomatedFormFill:
     report = ReportToCsv(self.username
     ,self.status["1"],"account added successfuly",True)
     report.reporting()
-
-
+    self.end = "done"
 
 
 
@@ -277,19 +260,16 @@ class AutomatedFormFill:
     self.check_auth_partnership()
 
 
-
-    
-
+    return self.end 
 
 
 
 
+# form = AutomatedFormFill(DESTINATION_URL,"012ps@targum4biz.onmicrosoft.com")
+# form.activate()
 
+username_data = ["012ps@tar4biz.onmicrosoft.com","012ps@targum4biz.onmicrosoft.com"]
 
-
-
-
-
-
-form = AutomatedFormFill(DESTINATION_URL,"012ps@targum4biz.onmicrosoft.com")
-form.activate()
+for i in username_data:
+  form = AutomatedFormFill(DESTINATION_URL,i)
+  form.activate()
