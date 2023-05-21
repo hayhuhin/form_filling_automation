@@ -24,6 +24,7 @@ class AutomatedFormFill:
     self.status = {"1":"Added","0":"Not Added"}
 
     self.stage = "first"
+    self.passwords = [i for i in password_list]
 
 
 
@@ -45,6 +46,45 @@ class AutomatedFormFill:
       except NoSuchElementException:
         return True
         
+
+  def password_all(self):
+    i = 0
+    while True:
+      try:
+        #sending keyboard password
+        # find = self.driver.find_element(By.NAME,"passwd")
+        typing_pass = ac(self.driver)
+        typing_pass.send_keys(password_list[i])
+        typing_pass.perform()
+
+      #click next after filling the password
+        find = self.driver.find_element("id","idSIButton9")  
+        find.click()
+
+        #indexing through the list
+        i += 1
+      
+
+        #checking if there is error message and breaks if there isnt one
+        check_for_errors = self.credential_validation()
+        if check_for_errors == False:
+          #ADD clearing input area from the previous password
+          print("no error in the pass")
+          break
+
+        #breaking if there is no error message
+        else:
+          print("error in the pass")
+          continue
+    
+      
+      #this except skips if there is no passwrd name tag at all
+      except:
+        print("there is no pass at all")
+        break
+    
+
+
 
 
   def credentials_fill(self,username):#filling the credentials and check for errors
@@ -68,20 +108,28 @@ class AutomatedFormFill:
     print(check)
     sleep(5)
 
+    #IMPORTANT only for testing
+    self.password_all()
+
     #sending keys to the webpage with the password
     #TODO fix trying all passwords
     
-    typing_pass = ac(self.driver)
-    typing_pass.send_keys(password_list[1])
-    typing_pass.perform()
+    # typing_pass = ac(self.driver)
+    # typing_pass.send_keys(password_list[0])
+    # typing_pass.perform()
 
-  #click next after filling the password
-    find = self.driver.find_element("id","idSIButton9")  
-    find.click()
+  # #click next after filling the password
+  #   find = self.driver.find_element("id","idSIButton9")  
+  #   find.click()
+
+
+    
+
+
 
   # checking if password exists
-    check_2 = self.credential_validation()
-    print(check_2)
+    # check_2 = self.credential_validation()
+    # print(check_2)
     sleep(5)
 
 
