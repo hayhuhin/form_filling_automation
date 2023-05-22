@@ -26,11 +26,13 @@ class AutomatedFormFill:
     self.stage = "first"
     self.passwords = [i for i in password_list]
 
-    self.end = ""
+
 
 
 
   def credential_validation(self):#method to check username and password validation
+
+
     login_error_list = [("id","usernameError"),("id","passwordError")]
 
     for by,value in login_error_list:
@@ -41,13 +43,17 @@ class AutomatedFormFill:
         if error:
           report = ReportToCsv(self.username,self.status["0"],value,True)
           report.reporting()
+          
+
+
+
           return False
         return False
         break
       
       except NoSuchElementException:
         return True
-        
+      
 
   def password_all(self):
     i = 0
@@ -87,6 +93,8 @@ class AutomatedFormFill:
     
     report = ReportToCsv(self.username,self.status["0"],"password is wrong",True)
     report.reporting()
+    
+
    
     
 
@@ -234,39 +242,49 @@ class AutomatedFormFill:
   def activate(self):#method that runs everything togheter(main method)
     """ main method that will run the whole code """
 
-    #destination path that can gets the path from settings.py
-    self.driver.get(self.destination_path)
-    
-
-    #method that fill the credentials and checking for errors(wrong username or password and if error exists it will return a report to csv file)
-    self.credentials_fill(self.username)
-
-
-
-    #checking if there is security window is enabled(checking if can i go to the next step or not)
-    self.security_defaults_windows()
-
-    sleep(5)
-
-    #STAY signed in?window
     try:
-      find = self.driver.find_element("id","idBtn_Back")
-      find.click()
-    except:
+
+      #destination path that can gets the path from settings.py
+      self.driver.get(self.destination_path)
+      
+
+      #method that fill the credentials and checking for errors(wrong username or password and if error exists it will return a report to csv file)
+      self.credentials_fill(self.username)
+
+
+
+      #checking if there is security window is enabled(checking if can i go to the next step or not)
+      self.security_defaults_windows()
+
+      sleep(5)
+
+      #STAY signed in?window
+      try:
+        find = self.driver.find_element("id","idBtn_Back")
+        find.click()
+      except:
+        pass
+
+
+      #filling the partnership form
+      self.check_auth_partnership()
+    except Exception:
       pass
 
-
-    #filling the partnership form
-    self.check_auth_partnership()
-
-
-    return self.end 
+    
 
 
 
+    
 
-# form = AutomatedFormFill(DESTINATION_URL,"012ps@targum4biz.onmicrosoft.com")
-# form.activate()
+
+
+
+
+
+
+
+
 
 username_data = ["012ps@tar4biz.onmicrosoft.com","012ps@targum4biz.onmicrosoft.com"]
 

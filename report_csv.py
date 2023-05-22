@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 import csv
 
 class ReportToCsv:
@@ -8,9 +8,10 @@ class ReportToCsv:
         self.reason = reason
         self.unique = unique
         self.fldnames = ["username","status","reason","unique"]
+        self.path = Path("report.csv")
 
     def  reporting(self):
-        with open("form_filling_automation/report.csv","r+",newline="") as csv_file:
+        with open(self.path,"r+",newline="") as csv_file:
             data = csv.reader(csv_file, delimiter=',')
             for user,status,reason,unique in data:
                 if self.username == user:
@@ -19,7 +20,7 @@ class ReportToCsv:
 
 
 
-        with open("form_filling_automation/report.csv","a",newline="") as report:
+        with open(self.path,"a",newline="") as report:
             writing = csv.writer(report)
             
             # writing.writerow(self.fldnames)
@@ -30,3 +31,4 @@ class ReportToCsv:
 
 # test = ReportToCsv("sergei","no status","just a test",True)
 # test.reporting()
+
