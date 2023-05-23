@@ -4,7 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from time import sleep
-from usernames import password_list
+from usernames import password_list,username_list
 from settings import CHROME_DRIVER_PATH,DESTINATION_URL
 from report_csv import ReportToCsv
 from selenium.common.exceptions import NoSuchElementException
@@ -23,10 +23,7 @@ class AutomatedFormFill:
 
     self.status = {"1":"Added","0":"Not Added"}
 
-    self.stage = "first"
     self.passwords = [i for i in password_list]
-
-
 
 
 
@@ -36,71 +33,36 @@ class AutomatedFormFill:
     login_error_list = [("id","usernameError"),("id","passwordError")]
 
     for by,value in login_error_list:
-      sleep(5)
       try:
         sleep(5)
         error = self.driver.find_element(by,value).is_displayed()
-        if error:
-          report = ReportToCsv(self.username,self.status["0"],value,True)
-          report.reporting()
-          
+        if value == "usernameError":
+          return "usernameError"
 
+        elif value == "passwordError":
+          return "passwordError"
 
-
-          return False
-        return False
-        break
       
-      except NoSuchElementException:
-        return True
+      except :
+        pass
       
 
-  def password_all(self):
-    i = 0
-    while True:
-      try:
+  def password_all(self,pas):
+
         #sending keyboard password
-        # find = self.driver.find_element(By.NAME,"passwd")
-        typing_pass = ac(self.driver)
-        typing_pass.send_keys(password_list[i])
-        typing_pass.perform()
+      typing_pass = ac(self.driver)
+      typing_pass.send_keys(pas)
+      typing_pass.perform()
 
-      #click next after filling the password
-        find = self.driver.find_element("id","idSIButton9")  
-        find.click()
+    #click next after filling the password
+      find = self.driver.find_element("id","idSIButton9")  
+      find.click()
 
-        #indexing through the list
-        i += 1
-      
-
-        #checking if there is error message and breaks if there isnt one
-        check_for_errors = self.credential_validation()
-        if check_for_errors == False:
-          #ADD clearing input area from the previous password
-          print("no error in the pass")
-          break
-
-        #breaking if there is no error message
-        else:
-          print("error in the pass")
-          continue
-    
-      
-      #this except skips if there is no passwrd name tag at all
-      except:
-        print("there is no pass at all")
-        break
-    
-    report = ReportToCsv(self.username,self.status["0"],"password is wrong",True)
-    report.reporting()
-    
+      check = self.credential_validation()
+      return check
 
    
     
-
-
-
-
   def credentials_fill(self,username):#filling the credentials and check for errors
 
     """ fillind the credentials and checking for errors"""
@@ -119,19 +81,34 @@ class AutomatedFormFill:
 
     #check if this username is exists
     check = self.credential_validation()
-    print(check)
-    sleep(5)
+    if check == "usernameError":
+      report = ReportToCsv(self.username,self.status["0"],check,True)
+      report.reporting()
+      self.driver.close()
+      self.driver.quit()
+      sleep(5)
+    else:
+      pass
 
-    #filling all passwords if found continue else:report to csv
-    self.password_all()
+    #filling all passwords if it exceede all passwords then it will close the report to csv
 
+    counter = 0
+    for i in self.passwords:
+      checking = self.password_all(i)
+      counter += 1
+      if counter == 4 and checking == "passwordError":
+        pass_report = ReportToCsv(self.username,self.status["0"],checking,True)
+        pass_report.reporting()
+        self.driver.close()
+        self.driver.quit()
+        pass
+      
     sleep(5)
 
 
   
   #method to check if secority defaults are enabled window appear  
   def security_defaults_windows(self):#fill the security window(reports to csv if cant proceed)
-    self.stage = "third"
     sleep(5)
     windows = [("id","idSubmit_ProofUp_Redirect"),("id","idBtn_Back")]
     for by,value in windows:
@@ -271,23 +248,15 @@ class AutomatedFormFill:
     except Exception:
       pass
 
-    
-
-
-
-    
 
 
 
 
 
+if "__main__" == __name__:
 
 
 
-
-
-username_data = ["012ps@tar4biz.onmicrosoft.com","012ps@targum4biz.onmicrosoft.com"]
-
-for i in username_data:
-  form = AutomatedFormFill(DESTINATION_URL,i)
-  form.activate()
+  for i in username_list:
+    form = AutomatedFormFill(DESTINATION_URL,i)
+    form.activate()
