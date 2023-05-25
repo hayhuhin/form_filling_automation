@@ -55,13 +55,14 @@ class AutomatedFormFill:
       typing_pass.perform()
 
     #click next after filling the password
-      find = self.driver.find_element("id","idSIButton9")  
-      find.click()
-
+      try:
+        find = self.driver.find_element("id","idSIButton9")  
+        find.click()
+      except:
+        pass
       check = self.credential_validation()
       return check
 
-   
     
   def credentials_fill(self,username):#filling the credentials and check for errors
 
@@ -102,10 +103,9 @@ class AutomatedFormFill:
         self.driver.close()
         self.driver.quit()
         pass
+      # elif 
       
     sleep(5)
-
-
   
   #method to check if secority defaults are enabled window appear  
   def security_defaults_windows(self):#fill the security window(reports to csv if cant proceed)
@@ -121,20 +121,13 @@ class AutomatedFormFill:
         elif value == "idBtn_Back":
           find = self.driver.find_element("id","idBtn_Back")
           find.click()
-        else:
-          report = ReportToCsv(self.username
-          ,self.status["0"],value,True)
-        break
+        pass
 
       except NoSuchElementException:
+        report = ReportToCsv(self.username,self.status["0"],f"needed 2FA to procceed error: {value}",True)
+        report.reporting()
         pass
       
-      #if not security window so click on No and continue 
-    # except:
-    #   find = self.driver.find_element("id","idBtn_Back")
-    #   if find.is_displayed():
-    #     find.click()
-
 
   def check_auth_partnership(self):#last form fill
     """ method that uses global class attributes to fill the partner relationship 
@@ -142,7 +135,7 @@ class AutomatedFormFill:
         button.
     """
    
-    time = sleep(55)
+    time = sleep(45)
   
     all_checkboxes = self.driver.find_elements(By.CLASS_NAME,"ms-Checkbox-checkmark")
 
@@ -215,7 +208,6 @@ class AutomatedFormFill:
     self.end = "done"
 
 
-
   def activate(self):#method that runs everything togheter(main method)
     """ main method that will run the whole code """
 
@@ -256,7 +248,7 @@ class AutomatedFormFill:
 if "__main__" == __name__:
 
 
-
-  for i in username_list:
-    form = AutomatedFormFill(DESTINATION_URL,i)
+  #loop over all usernames and then creating instance of a class and start the proccess of filling the form
+  for username in username_list:
+    form = AutomatedFormFill(DESTINATION_URL,username)
     form.activate()
