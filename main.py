@@ -107,8 +107,8 @@ class AutomatedFormFill:
       
     sleep(5)
   
-  #method to check if secority defaults are enabled window appear  
-  def security_defaults_windows(self):#fill the security window(reports to csv if cant proceed)
+  #method to check if security defaults are enabled and the window appear  
+  def security_defaults_windows(self):#fill the security window(reports to csv if it cant proceed)
     sleep(5)
     windows = [("id","idSubmit_ProofUp_Redirect"),("id","idBtn_Back")]
     for by,value in windows:
@@ -140,11 +140,11 @@ class AutomatedFormFill:
     all_checkboxes = self.driver.find_elements(By.CLASS_NAME,"ms-Checkbox-checkmark")
 
 
-                  #IMPORTANT here its twice because the checkbox and the click must be completed one after another
+                   #IMPORTANT here its twice because the checkbox and the click must be completed one after another
     
-    try:
-      #IMPORTANT          #TODO the two checkboxes having the same attributes so i have to find a way to check both of them but not
-      #                         in the same time #REMEBER the driver iterates over the website every 500 ml seconds
+    
+    try
+
       find = self.driver.find_element(By.CLASS_NAME,"ms-Checkbox-checkmark")
       print(find)
       find.click()
@@ -208,12 +208,15 @@ class AutomatedFormFill:
     self.end = "done"
 
 
-  def activate(self):#method that runs everything togheter(main method)
-    """ main method that will run the whole code """
+  def activate(self):#method that runs all methods in a certain order (main method)
+    """ main method that run all methods in a certain order
+        on every step it will pass(continue ot execute) or break(report will be sent to csv file with detailes)
+        the class is callable even if the code will break(to disable it for troubleshooting reasons remove "try/except" in the activate method
+    """
 
     try:
 
-      #destination path that can gets the path from settings.py
+      #destination path that get the path from settings.py
       self.driver.get(self.destination_path)
       
 
@@ -222,12 +225,12 @@ class AutomatedFormFill:
 
 
 
-      #checking if there is security window is enabled(checking if can i go to the next step or not)
+      #checking if there is security window enabled(checking if possible to proceed or not)
       self.security_defaults_windows()
 
       sleep(5)
 
-      #STAY signed in?window
+      #clicking the: (STAY signed in?:YES/NO)
       try:
         find = self.driver.find_element("id","idBtn_Back")
         find.click()
@@ -246,9 +249,12 @@ class AutomatedFormFill:
 
 
 if "__main__" == __name__:
-
-
+  
   #loop over all usernames and then creating instance of a class and start the proccess of filling the form
+  #the usernames need to be stored as list of strings  EXAMPLE: username_list = ["usarname@gmail.com","username2@gmail.com"]
+  
+  
+  
   for username in username_list:
     form = AutomatedFormFill(DESTINATION_URL,username)
     form.activate()
